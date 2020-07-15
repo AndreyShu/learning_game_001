@@ -29,10 +29,13 @@ private:
 	sf::Vector2f mousePosView;
 
 	//Game logic
-	int points;
+	bool endGame;
+	unsigned points;
+	int health;
 	float enemySpawnTimer;
 	float enemySpawnTimerMax;
 	int maxEnemies;
+	bool mouseHeld;
 
 	//Game objects
 	//For sprite use sf::Sprite
@@ -52,6 +55,7 @@ public:
 
 	//Accessors
 	const bool running() const;
+	const bool getEndGame() const;
 
 
 	//Functions
