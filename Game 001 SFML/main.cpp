@@ -6,6 +6,9 @@
 
 int main()
 {
+	//Init srand(random)
+	std::srand(static_cast<unsigned>(time(NULL)));
+
 	//Init game engine
 	Game game;
 
