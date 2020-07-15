@@ -9,7 +9,7 @@ void Game::initVariables()
 	this->endGame = false;
 	this->points = 0;
 	this->health = 10;
-	this->enemySpawnTimerMax = 10.f;
+	this->enemySpawnTimerMax = 30.f;
 	float enemySpawnTimer = this->enemySpawnTimerMax;
 	this->maxEnemies = 10;
 	this->mouseHeld = false;
@@ -23,6 +23,24 @@ void Game::initWindow()
 	this->window = new sf::RenderWindow(this->videoMode, "Game 1", sf::Style::Titlebar | sf::Style::Close);
 
 	this->window->setFramerateLimit(60);
+}
+
+void Game::initFonts()
+{
+	if (this->font.loadFromFile("Fonts/origa___.ttf"))
+	{
+		std::cout << "ERROR::GAME::INITFONTS::Failed to load fonts!" << std::endl;
+	}
+}
+
+void Game::initText()
+{
+	this->uiText.setFont(this->font);
+	this->uiText.setCharacterSize(24);
+	this->uiText.setFillColor(sf::Color::Black);
+	this->uiText.setOutlineColor(sf::Color::White);
+	this->uiText.setOutlineThickness(3);
+	this->uiText.setString("NONE");
 }
 
 void Game::initEnemies()
@@ -40,6 +58,8 @@ Game::Game()
 {
 	this->initVariables();
 	this->initWindow();
+	this->initFonts();
+	this->initText();
 	this->initEnemies();
 }
 
@@ -111,6 +131,16 @@ void Game::updateMousePositions()
 	this->mousePosWindow = sf::Mouse::getPosition(*this->window);
 
 	this->mousePosView = this->window->mapPixelToCoords(this->mousePosWindow);
+}
+
+void Game::updateText()
+{
+	std::stringstream ss;
+
+	ss << "Points: " << this->points << std::endl
+	   << "Health: " << this->health << std::endl;
+
+	this->uiText.setString(ss.str());
 }
 
 void Game::updateEnemies()
@@ -191,6 +221,8 @@ void Game::update()
 	{
 		this->updateMousePositions();
 
+		this->updateText();
+
 		this->updateEnemies();
 	}
 
@@ -199,12 +231,17 @@ void Game::update()
 		this->endGame = true;
 }
 
-void Game::renderEnemies()
+void Game::renderText(sf::RenderTarget& target)
+{
+	target.draw(this->uiText);
+}
+
+void Game::renderEnemies(sf::RenderTarget& target)
 {
 	//Rendering all the enemies
 	for (auto &e : this->enemies)
 	{
-		this->window->draw(e);
+		target.draw(e);
 	}
 }
 
@@ -224,7 +261,9 @@ void Game::render()
 
 	//Draw game oblects
 
-	this->renderEnemies();
+	this->renderEnemies(*this->window);
+
+	this->renderText(*this->window);
 
 	this->window->display();
 
