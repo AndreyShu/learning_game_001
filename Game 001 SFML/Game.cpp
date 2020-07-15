@@ -7,9 +7,9 @@ void Game::initVariables()
 
 	//Game logic
 	this->points = 0;
-	this->enemySpawnTimerMax = 100.f;
+	this->enemySpawnTimerMax = 10.f;
 	float enemySpawnTimer = this->enemySpawnTimerMax;
-	this->maxEnemies = 5;
+	this->maxEnemies = 10;
 }
 
 void Game::initWindow()
@@ -28,8 +28,8 @@ void Game::initEnemies()
 	this->enemy.setSize(sf::Vector2f(100.f, 100.f));
 	this->enemy.setScale(sf::Vector2f(0.5f, 0.5f));
 	this->enemy.setFillColor(sf::Color::Cyan);
-	this->enemy.setOutlineColor(sf::Color::Blue);
-	this->enemy.setOutlineThickness(1.f);
+	//this->enemy.setOutlineColor(sf::Color::Blue);
+	//this->enemy.setOutlineThickness(1.f);
 }
 
 //Constructors / Destructors
@@ -71,9 +71,7 @@ void Game::spawnEnemy()
 	this->enemy.setFillColor(sf::Color::Green);
 
 	//Spawn the enemy
-	this->enemies.push_back(this->enemy);
-
-	//Remove the enemies at the end of screen
+	this->enemies.push_back(this->enemy);	
 }
 
 void Game::pollEnents()
@@ -103,6 +101,8 @@ void Game::updateMousePositions()
 	   - Mouse position relative to window (Vector2i)
     */
 	this->mousePosWindow = sf::Mouse::getPosition(*this->window);
+
+	this->mousePosView = this->window->mapPixelToCoords(this->mousePosWindow);
 }
 
 void Game::updateEnemies()
@@ -129,10 +129,34 @@ void Game::updateEnemies()
 		    this->enemySpawnTimer += 1.f;
 	}
 
-	//Move the enemies
-	for (auto &e : this->enemies)
+	//Moving and Updating enemies
+	for (int i = 0; i < this->enemies.size(); i++)
 	{
-		e.move(0.f, 1.f);
+		bool deleted = false;
+		this->enemies[i].move(0.f, 3.f);
+
+		//Check if clicked upon
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			if (this->enemies[i].getGlobalBounds().contains(this->mousePosView))
+			{
+				deleted = true;
+
+				//Gain points
+				this->points += 10.f;
+			}
+		}
+		//If enemy is past the bottom of the screen - delete.
+		if (this->enemies[i].getPosition().y > this->window->getSize().y)
+		{
+			deleted = true;
+		}
+
+		//Final delete
+		if (deleted)
+		{
+			this->enemies.erase(this->enemies.begin() + i);
+		}
 	}
 }
 
